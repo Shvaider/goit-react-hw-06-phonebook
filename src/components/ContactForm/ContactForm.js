@@ -1,17 +1,24 @@
 import { useState } from 'react';
 import { nanoid } from 'nanoid';
+import { getContacts } from '../../redux/selectors';
+import * as actions from '../../redux/actions'
 import PropTypes from 'prop-types';
 import styles from './ContactForm.module.css';
+import { useDispatch, useSelector } from 'react-redux';
 
-export default function ContactForm({ addContact }) {
+export default function ContactForm() {
+  const contacts = useSelector(getContacts);
+  const dispatch = useDispatch();
+
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
+
 
   let numberId = nanoid();
   let nameId = nanoid();
 
   const handleChange = e => {
-    const { name, value } = e.target;
+    const { name, value } = e.currentTarget;
 
     switch (name) {
       case 'name':
@@ -26,23 +33,37 @@ export default function ContactForm({ addContact }) {
         return;
     }
   };
+  const resetName = () => {
+    setName('');
+  };
+
+  const resetNumber = () => {
+    setNumber('');
+  };
+
+  const checkName = name => {
+    return contacts.find(
+      contact => contact.name.toLowerCase() === name.toLowerCase(),
+    )
+  };
+  const checkNumber = number => {
+    return contacts.find(
+      contact => contact.number === number);
+  };
 
   const handleSubmit = e => {
     e.preventDefault();
 
-    if (!name || !number) {
+    if (checkName(name)) {
       alert('Вы не ввели все контактные данные');
-      return;
-    }
-
-    if (Number.isNaN(+number)) {
+    }else if (checkNumber(number)) {
       alert('Телефонный номер должен содержать только цифры');
-      return;
+    } else {
+      dispatch(actions.addContact(name, number))
     }
 
-    addContact(name, number);
-    setName('');
-    setNumber('');
+    resetName()
+    resetNumber()
   };
 
   return (
@@ -56,10 +77,11 @@ export default function ContactForm({ addContact }) {
             type="text"
             name="name"
             pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
-            title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
+            title="Ім'я може бути лише з букв, апострофа, дифізів та пробілів. Наприклад Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
             required
             value={name}
             onChange={handleChange}
+            placeholder="Evgenii Horokhov"
           />
         </div>
         <div className="inputField">
@@ -70,10 +92,11 @@ export default function ContactForm({ addContact }) {
             type="tel"
             name="number"
             pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
-            title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
+            title="Номер телефону повинен складатись з цифр та може містити пробіли, тире, круглі дужки та може починатися з +"
             required
             value={number}
             onChange={handleChange}
+            placeholder="000-00-00"
           />
         </div>
         <button className={styles.taskEditor_button} type="submit">

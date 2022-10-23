@@ -1,148 +1,71 @@
-import { useState } from 'react';
-import { nanoid } from 'nanoid';
+
 import ContactForm from './ContactForm/ContactForm';
 import ContactList from './ContactList/ContactList';
 import Filter from './Filter/Filter';
-import useLocalStorage from './hooks/useLocalStorage';
-
-const initialContact = [
-  { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-  { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-  { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-  { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-];
+import { useSelector } from 'react-redux';
+import { getContacts } from 'redux/selectors';
 
 export default function App() {
-  const [contacts, setContacts] = useLocalStorage('contacts', initialContact);
-  const [filter, setFilter] = useState('');
+  const contacts = useSelector(getContacts)
+  const contactsLength = contacts.length;
+  // const [contacts, setContacts] = useState(() => {
+  //   return JSON.parse(localStorage.getItem('contacts')) ?? [];
+  // });
 
-  const addContact = (name, number) => {
-    if (contacts.find(contact => contact.name === name)) {
-      alert(`${name} уже есть в списке ваших контактов`);
-      return;
-    } else {
-      const contact = {
-        name,
-        number,
-        id: nanoid(),
-      };
+  // useEffect(() => {
+  //   window.localStorage.setItem('contacts', JSON.stringify(contacts));
+  // }, [contacts]);
+  // const [filter, setFilter] = useState('');
 
-      setContacts(prevState => [...prevState, contact]);
-    }
-  };
+  // const addContact = (name, number) => {
+  //   const item = {
+  //     id: nanoid(),
+  //     name,
+  //     number,
+  //   };
+  //   if (name === '' || number === '') {
+  //     alert(`Будь ласка, заповніть усі поля!`);
+  //     return;
+  //   } else if (contacts.find(contact => contact.name === name)) {
+  //     alert(`${name} уже есть в списке ваших контактов`);
+  //     return;
+  //   } else {
+  //     setContacts(contacts => [item, ...contacts]);
+  //   }
+  // };
 
-  const changeFilter = filter => {
-    setFilter(filter);
-  };
+  // const changeFilter = e => {
+  //   setFilter(e.currentTarget.value);
+  // };
 
-  const getVisibleContacts = () => {
-    return contacts.filter(contacts =>
-      contacts.name.toLocaleLowerCase().includes(filter)
-    );
-  };
+  // const getVisibleContacts = () => {
+  //   const normalizeFilter = filter.toLowerCase();
+  //   return contacts.filter(contacts =>
+  //     contacts.name.toLowerCase().includes(normalizeFilter)
+  //   );
+  // };
 
-  const removeContact = contactID => {
-    setContacts(contacts.filter(({ id }) => id !== contactID));
-  };
-
-  const visibleContacts = getVisibleContacts();
+  // const removeContact = contactId => {
+  //   setContacts(prevState =>
+  //     prevState.filter(contact => contact.id !== contactId)
+  //   );
+  // };
 
   return (
     <div>
       <h1>Phonebook</h1>
-      <ContactForm addContact={addContact} />
+      <ContactForm/>
       <h2>Contacts</h2>
-      <Filter value={filter} onChangeFilter={changeFilter} />
-      <ContactList contacts={visibleContacts} removeContact={removeContact} />
+      {contactsLength > 1 && (
+        <Filter />
+      )}{' '}
+      {contactsLength > 0 ? (
+        <ContactList
+          
+        />
+      ) : (
+        <p>Currently you phonebook has contacts. Please add them.</p>
+      )}
     </div>
   );
 }
-
-/////
-// import React, { Component } from 'react';
-// import { nanoid } from 'nanoid';
-// import ContactForm from './ContactForm/ContactForm';
-// import ContactList from './ContactList/ContactList';
-// import Filter from './Filter/Filter';
-
-// export default class App extends Component {
-//   state = {
-//     contacts: [
-//       { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-//       { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-//       { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-//       { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-//     ],
-//     filter: '',
-//   };
-//   addContact = task => {
-//     const searchSameName = this.state.contacts
-//       .map(cont => cont.name)
-//       .includes(task.name);
-
-//     if (searchSameName) {
-//       alert(`${task.name} is already in contacts`);
-//     } else if (task.name.length === 0) {
-//       alert('Fields must be filled!');
-//     } else {
-//       const contact = {
-//         ...task,
-//         id: nanoid(),
-//       };
-
-//       this.setState(prevState => ({
-//         contacts: [...prevState.contacts, contact],
-//       }));
-//     }
-//   };
-
-//   changeFilter = filter => {
-//     this.setState({ filter });
-//   };
-
-//   getVisibleContacts = () => {
-//     const { contacts, filter } = this.state;
-//     const normalizeFilter = filter.toLocaleLowerCase();
-//     return contacts.filter(contacts =>
-//       contacts.name.toLocaleLowerCase().includes(normalizeFilter)
-//     );
-//   };
-
-//   componentDidMount() {
-//     const contacts = JSON.parse(localStorage.getItem('contacts'));
-//     if (contacts) {
-//       this.setState({ contacts });
-//     }
-//   }
-
-//   componentDidUpdate(nextProps, prevState) {
-//     if (prevState.contacts !== this.state.contacts) {
-//       localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
-//     }
-//   }
-
-//   removeContact = contactId => {
-//     this.setState(prevState => {
-//       return {
-//         contacts: prevState.contacts.filter(({ id }) => id !== contactId),
-//       };
-//     });
-//   };
-//   render() {
-//     const { filter } = this.state;
-//     const visibleContacts = this.getVisibleContacts();
-
-//     return (
-//       <div>
-//         <h1>Phonebook</h1>
-//         <ContactForm onAddContact={this.addContact} />
-//         <h2>Contacts</h2>
-//           <Filter value={filter} onChangeFilter={this.changeFilter} />
-//           <ContactList
-//             contacts={visibleContacts}
-//             onRemoveContact={this.removeContact}
-//           />
-//       </div>
-//     );
-//   }
-// }

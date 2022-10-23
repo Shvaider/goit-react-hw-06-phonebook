@@ -1,72 +1,44 @@
-import React from 'react';
 import PropTypes from 'prop-types';
+import { useSelector, useDispatch } from 'react-redux';
+import { getVisibleContacts } from '../../redux/selectors';
+import * as actions from '../../redux/actions';
 import styles from './ContactList.module.css';
 
-const ContactList = ({ contacts, removeContact }) => (
-  <ul className={styles.taskList}>
-    {contacts.map(contact => (
-      <li className={styles.taskList_item} key={contact.id}>
-       <p className={styles.taskList_name}>{contact.name + ':  ' + contact.number}</p>
-        {
-          <button
-            className={styles.taskList_button}
-            type="button"
-            name="delte"
-            onClick={() => removeContact(contact.id)}
-          >
-            delete
-          </button>
-        }
-      </li>
-    ))}
-  </ul>
-);
+function ContactList() {
+  const contacts = useSelector(getVisibleContacts);
+  const dispatch = useDispatch();
+
+  const removeContact = id => dispatch(actions.deleteContact(id));
+
+  return (
+    <ul className={styles.taskList}>
+      {contacts.map(({ name, number, id }) => (
+        <li className={styles.taskList_item} key={id}>
+          <p className={styles.taskList_name}>{name + ':  ' + number}</p>
+          {
+            <button
+              className={styles.taskList_button}
+              type="button"
+              name="delete"
+              onClick={() => removeContact(id)}
+            >
+              delete
+            </button>
+          }
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 ContactList.propTypes = {
   removeContact: PropTypes.func,
   contacts: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.string,
-      name: PropTypes.string,
-      number: PropTypes.string,
+      id: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+      number: PropTypes.string.isRequired,
     })
   ),
 };
 export default ContactList;
-
-//////
-// import React from 'react';
-// import PropTypes from 'prop-types';
-// import styles from './ContactList.module.css';
-
-// const ContactList = ({ contacts, onRemoveContact }) => (
-//   <ul className={styles.taskList}>
-//     {contacts.map(contact => (
-//       <li className={styles.taskList_item} key={contact.id}>
-//        <p className={styles.taskList_name}>{contact.name + ':  ' + contact.number}</p>
-//         {
-//           <button
-//             className={styles.taskList_button}
-//             type="button"
-//             name="delte"
-//             onClick={() => onRemoveContact(contact.id)}
-//           >
-//             delete
-//           </button>
-//         }
-//       </li>
-//     ))}
-//   </ul>
-// );
-
-// ContactList.propTypes = {
-//   onRemoveContact: PropTypes.func.isRequired,
-//   contacts: PropTypes.arrayOf(
-//     PropTypes.shape({
-//       id: PropTypes.string.isRequired,
-//       name: PropTypes.string.isRequired,
-//       number: PropTypes.string.isRequired,
-//     })
-//   ),
-// };
-// export default ContactList;
